@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NULL Cloud Gaming</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M82 52c0-1.1-.06-2.18-.18-3.24A18 18 0 0 0 64 28a17.9 17.9 0 0 0-14 6.72A22 22 0 0 0 28 54a22 22 0 0 0 .34 3.84A14 14 0 0 0 22 70a14 14 0 0 0 14 14h44a16 16 0 0 0 16-16 15.9 15.9 0 0 0-14-15.86Z' fill='%23f0eb3a'/%3E%3Cpath d='M44 46v20l18-10z' fill='%23111110'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#d6d0c4;--dark:#111110;--accent:#f0eb3a;--text:#1a1a18;
+  --muted:#6b6760;--border:#b0aa9e;--card:#ccc6b8;
+  --green:#22c55e;--blue:#3b82f6;--purple:#a855f7;--coral:#f97316;--pink:#ec4899;--teal:#14b8a6;
+  --nav-h:52px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;height:var(--nav-h);background:var(--dark);display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--bg);letter-spacing:.08em;display:flex;align-items:center;gap:8px;cursor:pointer}
+.logo-icon{flex-shrink:0;filter:drop-shadow(0 0 6px rgba(240,235,58,.35));transition:filter .2s,transform .2s}
+.logo:hover .logo-icon{filter:drop-shadow(0 0 10px rgba(240,235,58,.55));transform:scale(1.08)}
+.logo-text{font-size:14px;color:var(--bg);letter-spacing:.1em}
+.cloud-badge{background:var(--accent);color:var(--dark);font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.06em}
+nav ul{list-style:none;display:flex;gap:22px;align-items:center}
+nav ul a{font-family:'Space Mono',monospace;font-size:11px;color:var(--bg);text-decoration:none;letter-spacing:.06em;padding:7px 14px;border-radius:5px;border:1.5px solid rgba(214,208,196,.25);background:rgba(255,255,255,.06);transition:background .15s,border-color .15s,transform .1s;cursor:pointer;display:inline-block}
+nav ul a:hover,nav ul a.active{background:rgba(240,235,58,.15);border-color:var(--accent);color:var(--accent)}
+.nav-cta{background:var(--accent);color:var(--dark);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:8px 16px;border-radius:5px;letter-spacing:.06em;text-decoration:none;border:2px solid var(--accent);transition:transform .1s,opacity .15s !important}
+.nav-cta:hover{transform:scale(1.04);opacity:.92 !important}
+
+/* ── PAGES ── */
+.page{display:none;flex-direction:column;flex:1}
+.page.active{display:flex}
+
+/* ══════════════════════════════
+   HOME PAGE SECTIONS
+══════════════════════════════ */
+
+/* HERO BANNER */
+.hero{background:var(--dark);padding:0 32px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 75% 50%,rgba(240,235,58,.08) 0%,transparent 70%)}
+.hero-layout{max-width:1300px;margin:0 auto;display:flex;align-items:center;position:relative;z-index:1}
+.hero-inner{max-width:660px;padding:80px 48px 80px 0}
+.hero-eyebrow{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::before{content:'';display:inline-block;width:24px;height:2px;background:var(--accent)}
+.hero h1{font-size:clamp(36px,5.5vw,68px);font-weight:800;line-height:1;letter-spacing:-.03em;color:#f0ece4;margin-bottom:20px}
+.hero h1 span{color:var(--accent)}
+.hero p{font-size:16px;line-height:1.6;color:rgba(240,236,228,.55);max-width:500px;margin-bottom:36px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;padding:13px 26px;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:transform .15s,opacity .15s,box-shadow .15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:var(--dark);border-color:#d4cf2e}
+.btn-primary:hover{opacity:.92;box-shadow:0 3px 12px rgba(240,235,58,.35)}
+.btn-outline{background:rgba(255,255,255,.08);color:#f0ece4;border:2px solid rgba(240,236,228,.45)}
+.btn-outline:hover{border-color:var(--accent);background:rgba(240,235,58,.12);color:var(--accent)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{opacity:.9}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{opacity:.9}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover{opacity:.9}
+.btn-coral{background:var(--coral);color:#fff}
+.btn-coral:hover{opacity:.9}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-pink:hover{opacity:.9}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{opacity:.9}
+.btn-dark{background:var(--dark);color:#f0ece4;border:1.5px solid rgba(255,255,255,.12)}
+.btn-dark:hover{background:#1e1e1c}
+.btn-sm{padding:8px 16px;font-size:12px}
+.hero-badges{display:flex;gap:20px;flex-wrap:wrap;margin-top:40px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)}
+.hero-badge{display:flex;align-items:center;gap:8px}
+.hero-badge-icon{font-size:18px}
+.hero-badge-text{font-family:'Space Mono',monospace;font-size:10px;color:rgba(240,236,228,.45);letter-spacing:.06em;line-height:1.4}
+.hero-badge-text strong{display:block;color:rgba(240,236,228,.85);font-size:12px;margin-bottom:2px}
+
+/* STATS BAR */
+.stats-bar{background:var(--accent);padding:20px 32px;display:flex;justify-content:space-around;flex-wrap:wrap;gap:16px}
+.stat-item{text-align:center}
+.stat-num{font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--dark);line-height:1}
+.stat-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,26,24,.6);margin-top:4px}
+
+/* FEATURES SECTION */
+.features{padding:72px 32px;background:var(--dark)}
+.section-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{font-size:clamp(24px,3.5vw,38px);font-weight:800;letter-spacing:-.02em;color:#f0ece4;margin-bottom:48px;max-width:480px;line-height:1.1}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px}
+.feature-card{background:rgba(255,255,255,.04);padding:28px;transition:background .2s}
+.feature-card:hover{background:rgba(255,255,255,.07)}
+.feature-icon{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;flex-shrink:0}
+.fi-yellow{background:rgba(240,235,58,.15);border:1px solid rgba(240,235,58,.2)}
+.fi-green{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.2)}
+.fi-blue{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.2)}
+.fi-purple{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.2)}
+.fi-coral{background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.2)}
+.fi-teal{background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.2)}
+.feature-title{font-size:15px;font-weight:700;color:#f0ece4;margin-bottom:8px}
+.feature-desc{font-size:13px;line-height:1.65;color:rgba(240,236,228,.45)}
+
+/* PRICING SECTION */
+.pricing-section{padding:72px 32px;background:var(--dark)}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:32px}
+.price-card{background:rgba(255,255,255,.05);padding:28px;border-radius:18px;display:flex;flex-direction:column;gap:18px;transition:transform .2s,border-color .2s;border:1px solid rgba(255,255,255,.08)}
+.price-card:hover{transform:translateY(-4px);border-color:rgba(240,235,58,.3)}
+.price-card.featured{background:rgba(240,235,58,.12);border-color:rgba(240,235,58,.25)}
+.price-tier{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.price-amount{font-size:44px;font-weight:800;color:#f0ece4;line-height:1}
+.price-amount span{font-size:16px;font-weight:700;color:rgba(240,236,228,.65)}
+.price-copy{font-size:13px;line-height:1.7;color:rgba(240,236,228,.65)}
+.price-list{list-style:none;display:flex;flex-direction:column;gap:10px;padding:0;margin:0}
+.price-list li{font-size:12px;color:rgba(240,236,228,.65);padding-left:18px;position:relative}
+.price-list li::before{content:'•';position:absolute;left:0;top:0;color:var(--accent)}
+
+/* BROWSE SECTION */
+.browse-section{padding:56px 32px 0}
+.browse-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:16px}
+.browse-header h2{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:16px 0 24px;border-bottom:1px solid var(--border);margin-bottom:0}
+.filter-btn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.06em;padding:8px 16px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;font-weight:700;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.filter-btn:hover{border-color:var(--text);transform:translateY(-1px)}
+.filter-btn[data-filter="all"].active{background:var(--dark);color:var(--bg);border-color:var(--dark)}
+.filter-btn[data-filter="life-sim"].active{background:var(--green);color:#fff;border-color:var(--green)}
+.filter-btn[data-filter="rpg"].active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.filter-btn[data-filter="adventure"].active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.filter-btn[data-filter="action"].active{background:var(--coral);color:#fff;border-color:var(--coral)}
+
+.games-grid{padding:24px 0 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:22px}
+
+/* CARD */
+.card{display:flex;flex-direction:column;cursor:pointer;transition:transform .2s}
+.card:hover{transform:translateY(-4px)}
+.card-img{width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;position:relative;border:1.5px solid var(--border);background:var(--card)}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .card-img img{transform:scale(1.05)}
+.card-info{padding:10px 2px 0;display:flex;flex-direction:column;gap:3px}
+.card-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-weight:700;font-size:14px;letter-spacing:-.01em;line-height:1.1}
+.tag{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;background:var(--dark);color:var(--bg);padding:2px 6px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.tag.cloud{background:var(--accent);color:var(--dark)}
+.tag.life-sim{background:var(--green);color:#fff}
+.tag.rpg{background:var(--purple);color:#fff}
+.tag.adventure{background:var(--blue);color:#fff}
+.tag.action{background:var(--coral);color:#fff}
+.card-studio{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.card-rating{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:2px}
+.card-rating span{color:#d4a017}
+
+/* COMING SOON CARDS */
+.card-coming-soon{cursor:default}
+.card-coming-soon:hover{transform:none}
+.card-coming-soon .card-img{background:linear-gradient(135deg,#2a2a28 0%,#1a1a18 100%);border-style:dashed;border-color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.card-coming-soon .card-img::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 8px,rgba(255,255,255,.03) 8px,rgba(255,255,255,.03) 16px)}
+.coming-soon-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);position:relative;z-index:1}
+.coming-soon-sub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,236,228,.45);position:relative;z-index:1}
+.coming-soon-icon{font-size:36px;opacity:.35;position:relative;z-index:1}
+.tag.soon{background:var(--muted);color:#fff}
+
+/* TRENDING / POPULAR ROW */
+.trending-section{padding:0 32px 56px;background:var(--bg)}
+.trending-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.trending-scroll::-webkit-scrollbar{display:none}
+.trending-card{flex:0 0 280px;background:var(--dark);border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .2s;position:relative}
+.trending-card:hover{transform:translateY(-3px)}
+.trending-img{width:100%;height:150px;object-fit:cover;display:block}
+.trending-img-placeholder{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:.2}
+.trending-info{padding:14px 16px}
+.trending-rank{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.trending-title{font-size:14px;font-weight:700;color:#f0ece4;margin-bottom:6px}
+.trending-meta{display:flex;align-items:center;justify-content:space-between}
+.trending-online{font-family:'Space Mono',monospace;font-size:9px;color:rgba(240,236,228,.4);display:flex;align-items:center;gap:5px}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* HOW IT WORKS */
+.how-section{padding:72px 32px;background:#1a1a18}
+.how-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:48px;position:relative}
+.how-steps::before{content:'';position:absolute;top:30px;left:calc(12.5% + 16px);right:calc(12.5% + 16px);height:2px;background:repeating-linear-gradient(90deg,rgba(240,235,58,.3) 0,rgba(240,235,58,.3) 8px,transparent 8px,transparent 16px)}
+.how-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 16px;position:relative}
+.how-num{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:20px;margin-bottom:20px;position:relative;z-index:1}
+.hn1{background:var(--accent);color:var(--dark)}
+.hn2{background:var(--green);color:#fff}
+.hn3{background:var(--blue);color:#fff}
+.hn4{background:var(--purple);color:#fff}
+.how-step h4{font-size:15px;font-weight:700;color:#f0ece4;margin-bottom:8px}
+.how-step p{font-size:12px;line-height:1.65;color:rgba(240,236,228,.4);max-width:160px}
+
+/* PLATFORMS SECTION */
+.platforms-section{padding:56px 32px;background:var(--bg)}
+.platforms-section .section-title{color:var(--text)}
+.platforms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:32px}
+.platform-card{background:var(--dark);border-radius:10px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .2s}
+.platform-card:hover{transform:translateY(-3px)}
+.platform-icon{font-size:32px}
+.platform-name{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.6);letter-spacing:.08em;text-transform:uppercase;text-align:center}
+
+/* DETAIL PAGE */
+#page-detail{background:var(--bg)}
+.detail-back{padding:20px 32px 0;animation:fadeUp .3s ease both}
+.back-btn{font-family:'Space Mono',monospace;font-size:11px;background:#fff;border:2px solid var(--border);cursor:pointer;color:var(--text);letter-spacing:.06em;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;font-weight:700;transition:background .15s,border-color .15s,transform .1s;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.back-btn:hover{background:var(--dark);color:var(--bg);border-color:var(--dark)}
+.detail-hero{display:grid;grid-template-columns:1fr 340px;gap:32px;padding:24px 32px 0;animation:fadeUp .35s ease both}
+.detail-screenshots{display:flex;flex-direction:column;gap:12px}
+.main-screenshot{width:100%;aspect-ratio:16/9;border-radius:10px;border:1.5px solid var(--border);overflow:hidden;background:var(--card);position:relative}
+.main-screenshot img{width:100%;height:100%;object-fit:cover;display:block}
+.screenshot-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.thumb{aspect-ratio:16/9;border-radius:6px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s;background:var(--card)}
+.thumb:hover{border-color:var(--text)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.7);transition:filter .15s}
+.thumb:hover img{filter:brightness(1)}
+
+.detail-sidebar{display:flex;flex-direction:column;gap:14px}
+.detail-meta{background:var(--dark);color:var(--bg);border-radius:10px;padding:24px}
+.detail-meta h2{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.detail-meta .dev{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.5);letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.meta-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.meta-tag{font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid rgba(214,208,196,.2);color:rgba(214,208,196,.7);letter-spacing:.06em;text-transform:uppercase}
+.rating-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.stars{color:var(--accent);font-size:16px;letter-spacing:2px}
+.rating-num{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.rating-count{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.5)}
+
+.play-btn{width:100%;padding:14px;background:var(--accent);color:var(--dark);font-family:'Syne',sans-serif;font-weight:800;font-size:15px;letter-spacing:.04em;border:2px solid #d4cf2e;border-radius:8px;cursor:pointer;transition:opacity .15s,transform .1s,box-shadow .15s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.play-btn:hover{opacity:.92;box-shadow:0 4px 14px rgba(240,235,58,.4)}
+.play-btn:active{transform:scale(.98)}
+
+.sidebar-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.side-btn{padding:10px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.06em;border-radius:6px;border:2px solid transparent;cursor:pointer;font-weight:700;transition:opacity .15s,transform .1s,box-shadow .15s;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.side-btn:hover{opacity:.92;transform:translateY(-1px)}
+.side-btn:active{transform:scale(.97)}
+.sb-wishlist{background:var(--purple);color:#fff}
+.sb-share{background:var(--blue);color:#fff}
+.sb-gift{background:var(--pink);color:#fff}
+.sb-trial{background:var(--teal);color:#fff}
+
+.online-count{background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.online-text{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.7);letter-spacing:.04em}
+
+.detail-body{padding:32px 32px 48px;display:grid;grid-template-columns:1fr 340px;gap:32px;animation:fadeUp .4s ease both}
+.desc-section h3,.reviews-section h3{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}
+.desc-text{font-size:14px;line-height:1.7;opacity:.85;margin-bottom:16px}
+.review-card{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.reviewer-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.reviewer-name{font-weight:700;font-size:13px}
+.review-stars{color:#d4a017;font-size:12px;letter-spacing:1px}
+.review-date{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto}
+.review-text{font-size:13px;line-height:1.6;opacity:.8}
+
+.requirements{background:var(--dark);color:var(--bg);border-radius:10px;padding:20px;margin-bottom:14px}
+.requirements h4{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(214,208,196,.5);margin-bottom:14px}
+.req-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.req-row:last-child{border-bottom:none}
+.req-label{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.5);letter-spacing:.04em}
+.req-val{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--accent)}
+.req-val.green{color:var(--green)}
+
+.also-like{background:var(--card);border-radius:10px;padding:20px;border:1px solid var(--border)}
+.also-like h4{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.also-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.also-item:last-child{border-bottom:none}
+.also-item:hover{opacity:.7}
+.also-thumb{width:48px;height:34px;border-radius:4px;object-fit:cover;background:var(--dark);flex-shrink:0;overflow:hidden}
+.also-thumb img{width:100%;height:100%;object-fit:cover}
+.also-name{font-size:12px;font-weight:700;line-height:1.2}
+.also-dev{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+
+/* QUEUE OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(10,10,8,.85);z-index:1000;display:none;align-items:center;justify-content:center}
+.overlay.active{display:flex}
+.queue-modal{background:var(--dark);border-radius:16px;padding:40px;width:90%;max-width:460px;display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.queue-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:2px solid rgba(214,208,196,.25);color:var(--bg);font-size:16px;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
+.queue-close:hover{background:rgba(255,255,255,.18);border-color:rgba(214,208,196,.5)}
+.queue-game-name{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(214,208,196,.5)}
+.loading-spinner{width:56px;height:56px;border:3px solid rgba(214,208,196,.1);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-size:20px;font-weight:700;color:var(--bg);text-align:center}
+.loading-sub{font-family:'Space Mono',monospace;font-size:11px;color:rgba(214,208,196,.5);text-align:center;letter-spacing:.04em}
+.loading-dots span{animation:blink 1.2s infinite both}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.queue-position{font-size:64px;font-weight:800;color:var(--accent);line-height:1;font-family:'Space Mono',monospace}
+.queue-label{font-family:'Space Mono',monospace;font-size:11px;color:rgba(214,208,196,.5);letter-spacing:.1em;text-transform:uppercase}
+.queue-bar-wrap{width:100%;background:rgba(255,255,255,.07);border-radius:20px;height:6px;overflow:hidden}
+.queue-bar{height:100%;background:var(--accent);border-radius:20px;transition:width .8s ease}
+.queue-info{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.queue-stat{background:rgba(255,255,255,.05);border-radius:8px;padding:12px;text-align:center}
+.queue-stat-num{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--accent)}
+.queue-stat-label{font-family:'Space Mono',monospace;font-size:9px;color:rgba(214,208,196,.4);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.queue-cancel{font-family:'Space Mono',monospace;font-size:10px;color:var(--bg);letter-spacing:.06em;cursor:pointer;background:rgba(255,255,255,.08);border:2px solid rgba(214,208,196,.25);padding:10px 18px;border-radius:6px;font-weight:700;transition:background .15s,border-color .15s}
+.queue-cancel:hover{background:rgba(255,255,255,.14);border-color:rgba(214,208,196,.45)}
+.connected-icon{font-size:48px}
+.connected-title{font-size:22px;font-weight:800;color:var(--bg);text-align:center}
+.connected-sub{font-family:'Space Mono',monospace;font-size:11px;color:rgba(214,208,196,.5);text-align:center;letter-spacing:.04em}
+
+/* FOOTER */
+footer{background:#0a0a09;color:var(--bg);padding:56px 32px 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.07)}
+.footer-brand{}
+.footer-logo-mark{width:48px;height:48px;border:2px solid rgba(214,208,196,.25);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:rgba(214,208,196,.6);margin-bottom:16px}
+.footer-tagline{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.35);line-height:1.7;max-width:220px;margin-bottom:20px}
+.footer-socials{display:flex;gap:8px}
+.social-btn{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;border:2px solid transparent}
+.social-btn:hover{transform:scale(1.08);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.sb-tw{background:rgba(29,161,242,.25);color:#1da1f2;border-color:rgba(29,161,242,.5)}
+.sb-dc{background:rgba(114,137,218,.25);color:#7289da;border-color:rgba(114,137,218,.5)}
+.sb-ig{background:rgba(249,115,22,.25);color:var(--coral);border-color:rgba(249,115,22,.5)}
+.footer-col h5{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(214,208,196,.4);margin-bottom:16px}
+.footer-col a{display:inline-block;font-size:12px;color:rgba(214,208,196,.8);text-decoration:none;margin-bottom:8px;padding:6px 12px;border-radius:5px;border:1.5px solid rgba(214,208,196,.15);background:rgba(255,255,255,.04);transition:background .15s,border-color .15s,color .15s}
+.footer-col a:hover{color:var(--bg);background:rgba(240,235,58,.12);border-color:rgba(240,235,58,.35)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;flex-wrap:wrap;gap:12px}
+.footer-copy{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.25);letter-spacing:.04em}
+.footer-bottom-links{display:flex;gap:20px}
+.footer-bottom-links a{font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.7);text-decoration:none;letter-spacing:.04em;padding:6px 12px;border-radius:5px;border:1.5px solid rgba(214,208,196,.2);background:rgba(255,255,255,.04);transition:background .15s,border-color .15s,color .15s}
+.footer-bottom-links a:hover{color:var(--bg);background:rgba(255,255,255,.1);border-color:rgba(214,208,196,.4)}
+
+/* SHARE MODAL STYLE */
+.share-modal-body {
+  text-align: center;
+  color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+.share-link-input-wrap {
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(214, 208, 196, 0.25);
+  border-radius: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.share-link-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  word-break: break-all;
+  text-align: left;
+  user-select: all;
+  flex: 1;
+}
+.share-copy-indicator {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  background: var(--green);
+  color: #fff;
+  padding: 3px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+/* PRE-PLAY SETTINGS MODAL */
+.settings-form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+.settings-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(214, 208, 196, 0.6);
+}
+.settings-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(214, 208, 196, 0.25);
+  border-radius: 6px;
+  color: var(--bg);
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+.settings-select:focus, .settings-select:hover {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.12);
+}
+.settings-select option {
+  background: var(--dark);
+  color: var(--bg);
+  font-family: 'Space Mono', monospace;
+}
+.settings-select option:disabled {
+  color: var(--muted);
+  background: #1c1c1a;
+}
+.gpu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.gpu-card {
+  border: 2px solid rgba(214, 208, 196, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+.gpu-card:hover {
+  border-color: rgba(240, 235, 58, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+.gpu-card.active {
+  border-color: var(--accent);
+  background: rgba(240, 235, 58, 0.08);
+  box-shadow: 0 0 12px rgba(240, 235, 58, 0.15);
+}
+.gpu-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--bg);
+  transition: color 0.2s;
+}
+.gpu-card.active .gpu-name {
+  color: var(--accent);
+}
+.gpu-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: rgba(214, 208, 196, 0.5);
+  margin-top: 2px;
+}
+.gpu-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.gpu-status.online {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80; /* Brighter, comfortable green */
+}
+.gpu-status.busy {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ff8a4c; /* Brighter, comfortable coral */
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .hero-layout{flex-direction:column;gap:36px;align-items:flex-start}
+  .hero-inner{padding:0}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .how-steps::before{display:none}
+}
+@media(max-width:700px){
+  .detail-hero,.detail-body{grid-template-columns:1fr}
+  .games-grid{grid-template-columns:repeat(2,1fr)}
+  .browse-section{padding:40px 16px 0}
+  .trending-section{padding:0 16px 40px}
+  .hero{padding:48px 16px 56px}
+  .stats-bar,.features,.how-section,.platforms-section{padding-left:16px;padding-right:16px}
+  .detail-back,.detail-hero,.detail-body{padding-left:16px;padding-right:16px}
+  footer{padding:40px 16px 24px}
+  .footer-top{grid-template-columns:1fr}
+  nav ul li:nth-child(n+4){display:none}
+  .how-steps{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="showPage('home')">
+    <svg class="logo-icon" width="34" height="34" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f0eb3a"/>
+          <stop offset="100%" stop-color="#d4cf2e"/>
+        </linearGradient>
+      </defs>
+      <!-- Cloud shape -->
+      <path d="M82 52c0-1.1-.06-2.18-.18-3.24A18 18 0 0 0 64 28a17.9 17.9 0 0 0-14 6.72A22 22 0 0 0 28 54a22 22 0 0 0 .34 3.84A14 14 0 0 0 22 70a14 14 0 0 0 14 14h44a16 16 0 0 0 16-16 15.9 15.9 0 0 0-14-15.86Z" fill="url(#logoGrad)"/>
+      <!-- Play triangle -->
+      <path d="M44 46v20l18-10z" fill="#111110"/>
+    </svg>
+    <span class="logo-text">NULL</span>
+    <span class="cloud-badge">CLOUD</span>
+  </div>
+  <ul>
+    <li><a onclick="showPage('home')" class="active" id="nav-games">Games</a></li>
+    <li><a href="#">News</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#" class="nav-cta">Sign Up Free</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HOME PAGE ══ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-layout">
+      <div class="hero-inner">
+        <div class="hero-eyebrow">Next-gen cloud gaming</div>
+        <h1>Play any game.<br><span>Anywhere.</span> Instantly.</h1>
+        <p>No downloads. No hardware limits. Stream the best indie and AAA titles at full quality right from your browser, phone, or TV.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})">▶ &nbsp;Browse Games</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRENDING -->
+  <section class="trending-section" style="padding-top:56px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="section-label" style="color:var(--muted)">Right now</div>
+        <h2 style="font-size:clamp(20px,2.5vw,28px);font-weight:800;letter-spacing:-.02em">Trending This Week</h2>
+      </div>
+      <button class="btn btn-coral btn-sm" onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})">View All →</button>
+    </div>
+    <div class="trending-scroll" id="trending-scroll"></div>
+  </section>
+
+  <!-- BROWSE -->
+  <section class="browse-section" id="browse">
+    <div class="browse-header">
+      <div>
+        <div class="section-label" style="color:var(--muted);font-size:10px;font-family:'Space Mono',monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px">Library</div>
+        <h2>Browse All Games</h2>
+      </div>
+      <div class="search-wrap" style="background:#fff;border:1.5px solid var(--border);border-radius:6px;padding:0 10px;gap:8px;height:36px;width:200px;display:flex;align-items:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b6760" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+        <input type="text" placeholder="Search" id="search-input" style="border:none;background:transparent;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);outline:none;width:100%">
+      </div>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All Games</button>
+      <button class="filter-btn" data-filter="life-sim">🌿 Life Sim</button>
+      <button class="filter-btn" data-filter="rpg">⚔️ RPG</button>
+      <button class="filter-btn" data-filter="adventure">🌊 Adventure</button>
+      <button class="filter-btn" data-filter="action">🎮 Action</button>
+    </div>
+    <div class="games-grid" id="games-grid"></div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div style="text-align:center">
+      <div class="section-label" style="display:inline-block">How it works</div>
+      <div class="section-title" style="margin:12px auto 0;text-align:center">Start playing in under 60 seconds</div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num hn1">1</div>
+        <h4>Create Account</h4>
+        <p>Sign up free in 30 seconds — no credit card required for the trial.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num hn2">2</div>
+        <h4>Pick a Game</h4>
+        <p>Browse 500+ titles. Find something to play instantly or wishlist for later.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num hn3">3</div>
+        <h4>Click Play</h4>
+        <p>Hit play and you're in a server queue. Most waits are under 2 minutes.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num hn4">4</div>
+        <h4>Start Streaming</h4>
+        <p>Your session begins right in the browser. No downloads. No installs. Ever.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})">Get Started Free</button>
+      <button class="btn btn-blue" onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})">Browse Games →</button>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section class="platforms-section">
+    <div class="section-label" style="color:var(--muted)">Compatibility</div>
+    <div class="section-title">Play on any screen you own</div>
+    <div class="platforms-grid">
+      <div class="platform-card"><div class="platform-icon">📱</div><div class="platform-name">iOS & iPhone</div></div>
+      <div class="platform-card"><div class="platform-icon">🤖</div><div class="platform-name">Android</div></div>
+      <div class="platform-card"><div class="platform-icon">💻</div><div class="platform-name">Mac & PC</div></div>
+      <div class="platform-card"><div class="platform-icon">📺</div><div class="platform-name">Smart TV</div></div>
+      <div class="platform-card"><div class="platform-icon">🌐</div><div class="platform-name">Any Browser</div></div>
+      <div class="platform-card"><div class="platform-icon">🎮</div><div class="platform-name">Controllers</div></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-mark">NULL</div>
+        <p class="footer-tagline">A developer-friendly cloud gaming platform for indie and AAA titles. Play on PC, Mac, iOS, Android, and smart TVs.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-btn sb-tw">𝕏</a>
+          <a href="#" class="social-btn sb-dc">💬</a>
+          <a href="#" class="social-btn sb-ig">📷</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="#">Games</a>
+        <a href="#">Pricing</a>
+        <a href="#">Devices</a>
+        <a href="#">Cloud Co-op</a>
+        <a href="#">Game Gifting</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#">About Us</a>
+        <a href="#">News</a>
+        <a href="#">Careers</a>
+        <a href="#">Pitch Us</a>
+        <a href="#">Press Kit</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#">Help Center</a>
+        <a href="#">Contact</a>
+        <a href="#">Status Page</a>
+        <a href="#">Community</a>
+        <a href="#">Merch</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 NULL Cloud Gaming. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Settings</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ══ DETAIL PAGE ══ -->
+<div class="page" id="page-detail">
+  <div class="detail-back">
+    <button class="back-btn" onclick="showPage('home')">← Back to all games</button>
+  </div>
+  <div class="detail-hero" id="detail-hero"></div>
+  <div class="detail-body" id="detail-body"></div>
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-mark">NULL</div>
+        <p class="footer-tagline">A developer-friendly cloud gaming platform for indie and AAA titles. Play on any device, anywhere.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-btn sb-tw">𝕏</a>
+          <a href="#" class="social-btn sb-dc">💬</a>
+          <a href="#" class="social-btn sb-ig">📷</a>
+        </div>
+      </div>
+      <div class="footer-col"><h5>Platform</h5><a href="#">Games</a><a href="#">Pricing</a><a href="#">Devices</a><a href="#">Cloud Co-op</a></div>
+      <div class="footer-col"><h5>Company</h5><a href="#">About Us</a><a href="#">News</a><a href="#">Careers</a><a href="#">Pitch Us</a></div>
+      <div class="footer-col"><h5>Support</h5><a href="#">Help Center</a><a href="#">Contact</a><a href="#">Status Page</a><a href="#">Community</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 NULL Cloud Gaming. All rights reserved.</span>
+      <div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </footer>
+</div>
+
+<!-- PRE-PLAY SETUP OVERLAY -->
+<div class="overlay" id="setup-overlay">
+  <div class="queue-modal" style="max-width: 480px; gap: 16px;">
+    <button class="queue-close" onclick="closeSetup()">✕</button>
+    <div class="queue-game-name" id="setup-game-name">GAME SETUP</div>
+    <div style="font-size: 16px; font-weight: bold; color: var(--bg); text-align: center; width: 100%;">Configure Streaming Session</div>
+    
+    <div class="settings-form-group">
+      <span class="settings-label">Graphics Quality</span>
+      <select class="settings-select" id="setup-quality">
+        <option value="4k" disabled>RTX Ultra (4K UHD, HDR) — [UNAVAILABLE RN]</option>
+        <option value="1080p" selected>Balanced (1080p, High settings)</option>
+        <option value="720p">Data Saver (720p, Low Latency)</option>
+      </select>
+    </div>
+
+    <div class="settings-form-group">
+      <span class="settings-label">Frame Rate Limit</span>
+      <select class="settings-select" id="setup-fps">
+        <option value="120">120 FPS (Competitive Pro)</option>
+        <option value="60" selected>60 FPS (Silky Smooth)</option>
+        <option value="30">30 FPS (Low Bandwidth)</option>
+      </select>
+    </div>
+
+    <div class="settings-form-group">
+      <span class="settings-label">Streaming Server GPU Allocation</span>
+      <div class="gpu-grid">
+        <div class="gpu-card active" onclick="selectGpu(this, 'rtx4080')">
+          <div>
+            <div class="gpu-name">NVIDIA RTX 4080 Pod</div>
+            <div class="gpu-meta">Ping: 12ms · US-East Nodes</div>
+          </div>
+          <span class="gpu-status online">8 Free</span>
+        </div>
+        <div class="gpu-card" onclick="selectGpu(this, 'rtx3060')">
+          <div>
+            <div class="gpu-name">NVIDIA RTX 3060 Shared Host</div>
+            <div class="gpu-meta">Ping: 18ms · US-East Nodes</div>
+          </div>
+          <span class="gpu-status online">18 Free</span>
+        </div>
+        <div class="gpu-card" onclick="selectGpu(this, 'tesla')">
+          <div>
+            <div class="gpu-name">NVIDIA Tesla V100 Rig</div>
+            <div class="gpu-meta">Ping: 32ms · Backup Node</div>
+          </div>
+          <span class="gpu-status busy">Full Queue</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="play-btn" style="width:100%; margin-top: 10px;" onclick="confirmSetupAndStart()">
+      Confirm Config & Launch
+    </button>
+  </div>
+</div>
+
+<!-- QUEUE OVERLAY -->
+<div class="overlay" id="queue-overlay">
+  <div class="queue-modal">
+    <button class="queue-close" onclick="closeQueue()">✕</button>
+    <div class="queue-game-name" id="queue-game-name"></div>
+    <div id="queue-content" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:20px"></div>
+  </div>
+</div>
+
+<!-- SHARE OVERLAY -->
+<div class="overlay" id="share-overlay">
+  <div class="queue-modal" style="max-width:400px">
+    <button class="queue-close" onclick="closeShare()">✕</button>
+    <div class="queue-game-name">SHARE GAME</div>
+    <div class="share-modal-body">
+      <div style="font-size: 14px; margin-top: 10px;">Link copied to clipboard!</div>
+      <div class="share-link-input-wrap">
+        <span class="share-link-text" id="share-link-val"></span>
+        <span class="share-copy-indicator">Copied</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCKER OVERLAY -->
+<div class="overlay" id="locker-overlay">
+  <div class="queue-modal" style="max-width: 500px; padding: 30px; border: 3px solid var(--accent); box-shadow: 0 0 25px rgba(240, 235, 58, 0.45); gap: 16px;">
+    <button class="queue-close" onclick="closeLocker()">✕</button>
+    <div class="queue-game-name">SKIP THE QUEUE</div>
+    <div style="font-size: 18px; font-weight: 800; color: var(--bg); text-align: center; width: 100%; letter-spacing: -0.02em;">Instant Priority Bypass</div>
+    
+    <div style="width: 100%; height: 510px; border-radius: 10px; overflow: hidden; background: #000; position: relative; border: 2px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.8);">
+      <iframe src="https://lockernull.online/cl/i/7jvxlv" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+    </div>
+    
+    <div style="font-family:'Space Mono',monospace; font-size: 10px; color: rgba(214, 208, 196, 0.65); text-align: center; line-height: 1.5; padding: 0 10px;">
+      Complete a quick verification task above to skip the queue and launch your cloud gaming stream immediately.
+    </div>
+  </div>
+</div>
+
+<script>
+function localImg(folder, file) {
+  const dir = folder.split('/').map(encodeURIComponent).join('/');
+  return `images/${dir}/${encodeURIComponent(file)}`;
+}
+function localGallery(folder, files) {
+  return files.map(f => localImg(folder, f));
+}
+function coverImg(file) {
+  return `gamecoverimages/${encodeURIComponent(file)}`;
+}
+
+// Main card / trending covers (gamecoverimages/)
+const GAME_COVERS = {
+  tomodachi: 'tomodachicover.jpg',
+  miitopia: 'miitopiacover.jpg',
+  acnh: 'animalcrossingcover.avif',
+  subnautica2: 'subnautica2cover.jpg',
+  mario: 'mariocover.avif',
+  'lego-batman': 'batemancover.jpg',
+  sims4: 'sims4cover.png',
+  pokopia: 'pokopiacover.avif',
+  'zelda-botw': 'zeldabotwcover.jpg',
+  'zelda-totk': 'zeldatotkcover.webp',
+};
+
+// game id → [images subfolder name, gallery screenshots]
+const IMAGE_DIRS = {
+  tomodachi: ['tomodachi life', [
+    'image1.webp', 'image2.webp', 'image3.webp', 'image4.webp', 'image5.webp',
+  ]],
+  miitopia: ['miitopia', [
+    'miitopia-nintendo-switch-1.webp', 'Wh4ccumUe4rRSRQ8KVDoYA.jpg',
+    '_Switch_Miitopia_eGDP_Customize_1_Wigs_SCRN.avif',
+    'bf3ad55b42d115160d296ad2e98bba32923517dc.avif',
+  ]],
+  acnh: ['animal crossing', [
+    'FUaZTiVV56aUQNhF4gqVXP.webp', 'GhDDEAU4MNPocPJdGwpgAK.webp',
+    'iZikTSRa7VUU6FMKTkHfDf.webp', 'uQgKvtbaN94TWQyn9HyHv.webp',
+  ]],
+  subnautica2: ['subnautica2', [
+    'Subnautica-1024x576.webp', 'deep-grand-reef-subnautica-qjav8k830xl6lkw3.webp',
+    'kJfEDMsGMVPA46kCgK6rmX.webp', 'subnautica-2-review-3.webp',
+  ]],
+  mario: ['mario', [
+    'wp13008790.webp', '289801abfa5f211359582006a9ba1dc3.webp',
+    '20006717_SCR09.webp',
+    'super-mario-bros-wonder-nintendo-switch-review-2023-10-15_20-17-40_905843.webp',
+  ]],
+  'lego-batman': ['bateman', [
+    'large.jpg', 'images.webp', 'maxresdefault.jpg', 'images.jpg',
+    'ss_3c98a7a4d4624f8799d553a58fdb31d33ce1e494.1920x1080.jpg',
+  ]],
+  sims4: ['sims4', [
+    'SIMS_Website_Update_Homepage_Imaginative__1_.webp', 'The-Sims-4---Xbox-One.webp',
+    'AvBfRzsffW4V0ZMmclPSBrfg.webp', 'dark.webp', 'campus-logo.webp',
+  ]],
+  pokopia: ['pokopia', [
+    'pokemon-pokopia-4.jpg',
+    'poke-mon-pokopia-2-69a8009972e41.jpeg',
+    'images (1).jpg',
+    'Pokemon Pokopia Test Review Digitec Galaxus Magazin B21.jpg',
+    'pokemon-pokopia-carapuce-tiplouf-aquali-eau.avif',
+    'obs64_2026-03-03_16-32-46.avif',
+  ]],
+  'zelda-botw': ['zeldabotw', [
+    'botw03.png.webp',
+    'botw4kthumb-1619064723460.jpg',
+    'maxresdefault.jpg',
+    'Screen_Shot_2017_01_13_at_2.31.18_PM.avif',
+    'Zelda_botw_48.jpg',
+  ]],
+  'zelda-totk': ['zeldatotk', [
+    'Promo4.webp',
+    'switch-zeldatotk-mediapreview-scrn-04.jpg',
+    'switch_tloz_totk_screen_31.jpg.webp',
+    'totk-brokenweapon-1680023746057.png',
+    'TotK_AonumaVideo_23_png_jpgcopy.avif',
+  ]],
+};
+
+function withFolderImages(game) {
+  const cfg = IMAGE_DIRS[game.id];
+  const screenshots = cfg ? localGallery(cfg[0], cfg[1]) : [];
+  const coverFile = GAME_COVERS[game.id];
+  const cover = coverFile ? coverImg(coverFile) : (screenshots[0] || null);
+  return { ...game, screenshots, cover };
+}
+
+const GAMES = [
+  {id:'tomodachi',title:'Tomodachi Life: Living the Dream',dev:'Nintendo',genre:'life-sim',tags:['Life Sim'],icon:'👥',
+   rating:4.6,reviews:2341,online:847,
+   desc:`Tomodachi Life: Living the Dream is the ultimate life simulation experience where your Miis come to life with outrageous personalities, unexpected friendships, and bizarre life events you never saw coming.\n\nFrom rap battles to marriage proposals, no two days are the same on your island. Your Miis have genuine opinions, preferences, and emotional needs — it's up to you to keep them happy while watching the chaos unfold.`,
+   requirements:{Resolution:'1080p',Latency:'<20ms',Save:'Cloud',Controller:'Optional'},
+   comments:[
+     {name:'Luna M.',avatar:'#7c3aed',initials:'LM',stars:5,date:'2 days ago',text:'Absolutely addicted. My Miis have better social lives than I do at this point. The dream sequences are hilarious!'},
+     {name:'Jax P.',avatar:'#0891b2',initials:'JP',stars:4,date:'1 week ago',text:'Way more content than the original. Cloud save means I can pick up right where I left off on any device.'},
+     {name:'Sera T.',avatar:'#be185d',initials:'ST',stars:5,date:'2 weeks ago',text:'Playing this via cloud with zero lag is unreal. My whole family fights over who gets to play next.'},
+   ]},
+  {id:'miitopia',title:'Miitopia',dev:'Nintendo',genre:'rpg',tags:['RPG'],icon:'🎭',
+   rating:4.5,reviews:3102,online:1204,
+   desc:`Miitopia is a hilarious, heartfelt RPG where you cast your own Miis as the heroes and villains in an epic quest to restore stolen faces across the land.\n\nChoose your party's jobs, build friendships through camping trips and shared meals, and watch bonds form as your custom cast battles through charming dungeons.`,
+   requirements:{Resolution:'1080p',Latency:'<30ms',Save:'Cloud',Controller:'Optional'},
+   comments:[
+     {name:'Cleo V.',avatar:'#be185d',initials:'CV',stars:5,date:'1 day ago',text:'Putting my whole family in the game is pure chaos and I love every second. My dad as the final boss was a masterpiece.'},
+     {name:'Teo B.',avatar:'#0891b2',initials:'TB',stars:5,date:'4 days ago',text:'The relationship system between Miis is genuinely touching. Two of my friend-Miis became best friends and I felt things.'},
+     {name:'Nia F.',avatar:'#15803d',initials:'NF',stars:4,date:'2 weeks ago',text:'Great fun but can feel repetitive mid-game. The customisation and humour carry it all the way through.'},
+   ]},
+  {id:'acnh',title:'Animal Crossing: New Horizons',dev:'Nintendo',genre:'life-sim',tags:['Life Sim'],icon:'🏝',
+   rating:4.8,reviews:8847,online:3401,
+   desc:`Escape to your own private island paradise where you set the pace, decorate your world, and build friendships with charming animal villagers.\n\nFish, catch bugs, design your home, terraform your island, and visit friends' islands in seamless cloud multiplayer. With seasonal events and hundreds of hours of content, Animal Crossing is the ultimate cozy game.`,
+   requirements:{Resolution:'1080p',Latency:'<35ms',Save:'Cloud',Controller:'Recommended'},
+   comments:[
+     {name:'Hana S.',avatar:'#be185d',initials:'HS',stars:5,date:'6 hours ago',text:'Playing on my phone during commutes via cloud has completely reinvigorated my island. Visiting friends is seamless now.'},
+     {name:'Ollie D.',avatar:'#7c3aed',initials:'OD',stars:5,date:'2 days ago',text:'The GOAT cozy game. Cloud streaming means I finally have time since I can play literally anywhere.'},
+     {name:'Petra J.',avatar:'#c2410c',initials:'PJ',stars:4,date:'1 week ago',text:"I'd love more end-game content but the game is so relaxing I don't care. It's digital therapy."},
+   ]},
+  {id:'subnautica2',title:'Subnautica 2',dev:'Unknown Worlds',genre:'adventure',tags:['Adventure'],icon:'🌊',
+   rating:4.7,reviews:4521,online:2187,
+   desc:`Dive deeper than ever in Subnautica 2. Crash-land on a new ocean planet with your crew and face a fully co-op underwater survival experience — build bases, pilot submarines, and unravel an ancient alien mystery lurking in the abyssal dark.\n\nWith a new biome system and native co-op for up to four players, Subnautica 2 is the definitive underwater adventure.`,
+   requirements:{Resolution:'4K',Latency:'<20ms',Save:'Cloud',Controller:'Optional'},
+   comments:[
+     {name:'Remy A.',avatar:'#0891b2',initials:'RA',stars:5,date:'1 day ago',text:'The new alien planet is somehow even more terrifying and beautiful than the original. Cloud co-op was flawless.'},
+     {name:'Kai O.',avatar:'#15803d',initials:'KO',stars:5,date:'3 days ago',text:'I genuinely screamed when a leviathan emerged from the trench below me. 10/10. Streaming quality is incredible.'},
+     {name:'Blair N.',avatar:'#c2410c',initials:'BN',stars:4,date:'1 week ago',text:'Co-op adds so much. Building a base with a friend is the best gaming experience I\'ve had all year.'},
+   ]},
+  {id:'mario',title:'Super Mario Bros. Wonder',dev:'Nintendo',genre:'action',tags:['Action'],icon:'⭐',
+   rating:4.9,reviews:11204,online:5832,
+   desc:`Super Mario Bros. Wonder is the most inventive Mario platformer in decades. Collect Wonder Flowers to trigger bizarre, reality-bending transformations — no two Wonder events are ever the same.\n\nPlay solo or with up to four friends in seamless cloud co-op across six worlds packed with secrets, badges, and surprises. Streaming at 60fps means silky-smooth platforming wherever you are.`,
+   requirements:{Resolution:'1080p',Latency:'<15ms',Save:'Cloud',Controller:'Required'},
+   comments:[
+     {name:'Emi C.',avatar:'#be185d',initials:'EC',stars:5,date:'12 hours ago',text:'The Wonder Flower events are absolutely unhinged and I mean that as the highest praise. Every level made me gasp.'},
+     {name:'Finn R.',avatar:'#7c3aed',initials:'FR',stars:5,date:'2 days ago',text:'The best Mario game since Galaxy. The creativity on display is absurd. Co-op with my kids is chaotic in the best way.'},
+     {name:'Yuki T.',avatar:'#0891b2',initials:'YT',stars:5,date:'5 days ago',text:'60fps cloud streaming is a must for this game. Not a single hiccup during the toughest platforming sections.'},
+   ]},
+  {id:'lego-batman',title:'LEGO Batman: Legacy of the Dark Knight',dev:'TT Games / WB',genre:'action',tags:['Action'],icon:'🦇',
+   rating:4.3,reviews:6780,online:1923,
+   desc:`LEGO Batman: Legacy of the Dark Knight sends you into a grittier Gotham built for co-op heroics — master new Bat-Gadgets, unlock iconic suits, and take on a rogue's gallery of classic villains brick by brick.\n\nStream the full campaign with a friend, swap heroes on the fly, and explore open-world districts packed with secrets, challenges, and signature LEGO humor.`,
+   requirements:{Resolution:'1080p',Latency:'<30ms',Save:'Cloud',Controller:'Recommended'},
+   comments:[
+     {name:'Sam L.',avatar:'#c2410c',initials:'SL',stars:4,date:'2 days ago',text:'My kids and I have been playing this every evening. The humour lands for adults and kids equally.'},
+     {name:'Nour H.',avatar:'#7c3aed',initials:'NH',stars:5,date:'1 week ago',text:"The villain campaign is *chef's kiss*. Playing as the Joker causing mayhem is exactly the energy I needed."},
+     {name:'Arlo S.',avatar:'#15803d',initials:'AS',stars:4,date:'3 weeks ago',text:'Solid entry in the LEGO series. Very fun and co-op streaming had zero issues.'},
+   ]},
+  {id:'sims4',title:'The Sims 4',dev:'Maxis / EA',genre:'life-sim',tags:['Life Sim'],icon:'🏠',
+   rating:4.2,reviews:15432,online:7204,
+   desc:`The Sims 4 is the ultimate virtual life simulator — create unique Sims, build dream homes, and pursue careers. With dozens of expansion packs, the possibilities are unlimited.\n\nOn NULL Cloud, enjoy all your installed packs streamed instantly to any device. Build mansions on a tablet, manage careers from your phone — anywhere, anytime.`,
+   requirements:{Resolution:'1080p',Latency:'<35ms',Save:'Cloud',Controller:'Not Required'},
+   comments:[
+     {name:'Iris C.',avatar:'#be185d',initials:'IC',stars:5,date:'3 hours ago',text:'Finally playing Sims on my iPad with full expansion packs via cloud is a dream come true. Build mode is so smooth.'},
+     {name:'Marco V.',avatar:'#c2410c',initials:'MV',stars:4,date:'4 days ago',text:'The cloud platform handles heavy pack loading impressively well. Only minor issue is build mode camera sluggishness.'},
+     {name:'Faye K.',avatar:'#0891b2',initials:'FK',stars:4,date:'2 weeks ago',text:"Hundreds of hours in and I'm still finding new gameplay. Cloud save syncing is perfect between my laptop and TV."},
+   ]},
+  {id:'pokopia',title:'Pokopia',dev:'Pokopia Studios',genre:'rpg',tags:['RPG'],icon:'🌿',
+   rating:4.4,reviews:1087,online:523,
+   desc:`Pokopia is a breathtaking open-world RPG set in a lush, hand-crafted world teeming with mysteries and creatures unlike anything you've seen. As a wandering cartographer, you map unexplored territories while uncovering the secrets of a vanished civilization.\n\nWith deep crafting, dynamic weather that affects gameplay, and hundreds of side quests, Pokopia rewards explorers and completionists alike.`,
+   requirements:{Resolution:'4K',Latency:'<25ms',Save:'Cloud',Controller:'Required'},
+   comments:[
+     {name:'Dex W.',avatar:'#15803d',initials:'DW',stars:5,date:'3 days ago',text:"The world-building is second to none. I've clocked 80 hours and feel like I've barely scratched the surface."},
+     {name:'Miko R.',avatar:'#c2410c',initials:'MR',stars:4,date:'5 days ago',text:'Solid RPG with a compelling mystery. The crafting system is deep without being overwhelming.'},
+     {name:'Zara K.',avatar:'#7c3aed',initials:'ZK',stars:4,date:'3 weeks ago',text:'Pokopia scratches every itch I had after Elden Ring. The creature designs are incredibly creative.'},
+   ]},
+  {id:'zelda-botw',title:'The Legend of Zelda: Breath of the Wild',dev:'Nintendo',genre:'adventure',tags:['Adventure'],icon:'🗡️',
+   rating:4.9,reviews:28450,online:4102,
+   desc:`The Legend of Zelda: Breath of the Wild redefines open-world adventure. Explore the vast kingdom of Hyrule at your own pace — climb any mountain, solve shrine puzzles, and face Ganon when you're ready.\n\nStream the full experience in the cloud with crisp visuals and responsive controls, whether you're hunting Koroks on your phone or storming Hyrule Castle from your TV.`,
+   requirements:{Resolution:'1080p',Latency:'<25ms',Save:'Cloud',Controller:'Recommended'},
+   comments:[
+     {name:'Link R.',avatar:'#15803d',initials:'LR',stars:5,date:'5 hours ago',text:'Still the best open world ever made. Cloud play on my tablet during lunch breaks hits different.'},
+     {name:'Zel H.',avatar:'#0891b2',initials:'ZH',stars:5,date:'2 days ago',text:'120 hours in and I keep finding new things. Shrine puzzles stream without a hitch.'},
+     {name:'Mae T.',avatar:'#7c3aed',initials:'MT',stars:5,date:'1 week ago',text:'Worth replaying just to mess around in Hyrule. Combat and climbing feel great over cloud.'},
+   ]},
+  {id:'zelda-totk',title:'The Legend of Zelda: Tears of the Kingdom',dev:'Nintendo',genre:'adventure',tags:['Adventure'],icon:'🛡️',
+   rating:4.9,reviews:22180,online:3890,
+   desc:`The Legend of Zelda: Tears of the Kingdom builds on Breath of the Wild with sky islands, the Depths, and Ultrahand fusion — an even bigger Hyrule to explore and experiment in.\n\nCraft impossible machines, dive into chasms, and soar between floating islands. NULL Cloud keeps the action smooth so you can focus on discovery, not loading screens.`,
+   requirements:{Resolution:'1080p',Latency:'<25ms',Save:'Cloud',Controller:'Recommended'},
+   comments:[
+     {name:'Kael S.',avatar:'#c2410c',initials:'KS',stars:5,date:'8 hours ago',text:'Ultrahand builds are insane. I spent an hour making a flying tank instead of the main quest.'},
+     {name:'Nia P.',avatar:'#be185d',initials:'NP',stars:5,date:'3 days ago',text:'The Depths are terrifying in the best way. Streaming quality makes dark areas actually playable.'},
+     {name:'Owen L.',avatar:'#15803d',initials:'OL',stars:5,date:'5 days ago',text:'Bigger, weirder, and somehow still cohesive. Best sequel in years.'},
+   ]},
+].map(withFolderImages);
+
+const COMING_SOON = [
+  {title:'Coming Soon',dev:'New games',genre:'action',tags:['Action'],icon:'🎮'},
+  {title:'Coming Soon',dev:'New games',genre:'rpg',tags:['RPG'],icon:'⚔️'},
+  {title:'Coming Soon',dev:'New games',genre:'adventure',tags:['Adventure'],icon:'🌊'},
+  {title:'Coming Soon',dev:'New games',genre:'life-sim',tags:['Life Sim'],icon:'🌿'},
+  {title:'Coming Soon',dev:'New games',genre:'action',tags:['Action'],icon:'🦇'},
+  {title:'Coming Soon',dev:'New games',genre:'rpg',tags:['RPG'],icon:'✨'},
+];
+
+const COLORS=['#2d1b69','#1a3a2a','#4a1942','#0d2f3a','#3d1a00','#1a1a3e','#1a0a2e','#1a3a5c'];
+const GENRE_TAG = {'life-sim':'life-sim','rpg':'rpg','adventure':'adventure','action':'action'};
+
+let currentGame=null, queueTimer=null, queueState='loading', queuePos=0, waitTime=0;
+let libraryFilter='all', isSearchActive=false;
+
+function gameShots(g) {
+  if (g.screenshots?.length) return g.screenshots;
+  return g.cover ? [g.cover] : [];
+}
+function detailImages(g) {
+  const shots = gameShots(g);
+  const main = shots[0] || g.cover || null;
+  if (!shots.length) return { main, thumbs: [null, null, null, null] };
+  const thumbs = shots.length > 4 ? shots.slice(0, 4) : shots.slice(0, 4);
+  while (thumbs.length < 4) thumbs.push(shots[thumbs.length % shots.length]);
+  return { main, thumbs };
+}
+
+function imgOrFallback(src, fallback, idx, style='width:100%;height:100%;object-fit:cover;display:block'){
+  const bg = `background:linear-gradient(135deg,${COLORS[idx%COLORS.length]} 0%,${COLORS[(idx+3)%COLORS.length]} 100%)`;
+  const fb = `<div style="position:absolute;inset:0;${bg};display:flex;align-items:center;justify-content:center;font-size:48px;opacity:.3" class="fb-overlay">${fallback}</div>`;
+  if(!src) return `<div style="position:relative;width:100%;height:100%;${bg};display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.85">${fallback}</div>`;
+  return `<div style="position:relative;width:100%;height:100%">${fb}<img src="${src}" alt="" style="${style};position:relative;z-index:1" onerror="this.style.display='none'"></div>`;
+}
+
+function showPage(name,gameId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='detail'&&gameId){currentGame=GAMES.find(g=>g.id===gameId);renderDetail(currentGame);}
+  window.scrollTo(0,0);
+}
+
+function renderComingSoonCards(filter){
+  const soon=filter==='all'?COMING_SOON:COMING_SOON.filter(g=>g.genre===filter);
+  return soon.map((g,i)=>`
+    <div class="card card-coming-soon">
+      <div class="card-img">
+        <span class="coming-soon-icon">${g.icon}</span>
+        <span class="coming-soon-label">Coming Soon</span>
+        <span class="coming-soon-sub">New games</span>
+      </div>
+      <div class="card-info">
+        <div class="card-title-row">
+          <span class="card-title">${g.title}</span>
+          <span class="tag soon">${g.tags[0]}</span>
+        </div>
+        <span class="card-studio">${g.dev.toUpperCase()}</span>
+        <div class="card-rating" style="opacity:.5">— &nbsp;·&nbsp; Not available yet</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderGames(list){
+  const grid=document.getElementById('games-grid');
+  const gameCards=list.map((g,i)=>`
+    <div class="card" onclick="showPage('detail','${g.id}')">
+      <div class="card-img">${imgOrFallback(g.cover,g.icon,i)}</div>
+      <div class="card-info">
+        <div class="card-title-row">
+          <span class="card-title">${g.title}</span>
+          <span class="tag ${GENRE_TAG[g.genre]||'cloud'}">${g.tags[0]}</span>
+        </div>
+        <span class="card-studio">BY ${g.dev.toUpperCase()}</span>
+        <div class="card-rating"><span>★</span>${g.rating} &nbsp;·&nbsp; ${g.online.toLocaleString()} online</div>
+      </div>
+    </div>`).join('');
+  const soonCards=!isSearchActive?renderComingSoonCards(libraryFilter):'';
+  grid.innerHTML=gameCards+soonCards;
+}
+
+function renderTrending(){
+  const sorted=[...GAMES].sort((a,b)=>b.online-a.online).slice(0,5);
+  document.getElementById('trending-scroll').innerHTML=sorted.map((g,i)=>`
+    <div class="trending-card" onclick="showPage('detail','${g.id}')">
+      <div style="width:100%;height:150px;overflow:hidden;position:relative">${imgOrFallback(g.cover,g.icon,i,'width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1')}</div>
+      <div class="trending-info">
+        <div class="trending-rank">#${i+1} Trending</div>
+        <div class="trending-title">${g.title}</div>
+        <div class="trending-meta">
+          <span class="tag ${GENRE_TAG[g.genre]||'cloud'}" style="font-size:8px">${g.tags[0]}</span>
+          <span class="trending-online"><span class="tdot"></span>${g.online.toLocaleString()} playing</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// Global set for wishlist tracking loaded from localStorage
+const WISHLIST = new Set(JSON.parse(localStorage.getItem('wishlist_games') || '[]'));
+
+function toggleWishlist(gameId) {
+  if (WISHLIST.has(gameId)) {
+    WISHLIST.delete(gameId);
+  } else {
+    WISHLIST.add(gameId);
+  }
+  localStorage.setItem('wishlist_games', JSON.stringify([...WISHLIST]));
+  if (currentGame && currentGame.id === gameId) {
+    renderDetail(currentGame);
+  }
+}
+
+function shareGame(gameId) {
+  const shareUrl = window.location.origin + window.location.pathname + '#detail/' + gameId;
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    document.getElementById('share-link-val').textContent = shareUrl;
+    document.getElementById('share-overlay').classList.add('active');
+  }).catch(() => {
+    document.getElementById('share-link-val').textContent = shareUrl;
+    document.getElementById('share-overlay').classList.add('active');
+  });
+}
+
+function closeShare() {
+  document.getElementById('share-overlay').classList.remove('active');
+}
+
+function renderDetail(g){
+  const idx=GAMES.indexOf(g);
+  const { main, thumbs } = detailImages(g);
+  const others=GAMES.filter(o=>o.id!==g.id&&o.genre===g.genre).slice(0,3);
+  const isWishlisted = WISHLIST.has(g.id);
+
+  document.getElementById('detail-hero').innerHTML=`
+    <div class="detail-screenshots">
+      <div class="main-screenshot" id="detail-main-shot">${imgOrFallback(main,g.icon,idx)}</div>
+      <div class="screenshot-thumbs">
+        ${thumbs.map((src,i)=>`<div class="thumb" data-shot="${src||''}" role="button" tabindex="0">${imgOrFallback(src,g.icon,idx+i,'width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.7)')}</div>`).join('')}
+      </div>
+    </div>
+    <div class="detail-sidebar">
+      <div class="detail-meta">
+        <h2>${g.title}</h2>
+        <p class="dev">BY ${g.dev.toUpperCase()}</p>
+        <div class="meta-tags">${g.tags.map(t=>`<span class="meta-tag">${t}</span>`).join('')}<span class="meta-tag" style="background:rgba(240,235,58,.12);color:var(--accent);border-color:rgba(240,235,58,.3)">Cloud Ready</span></div>
+        <div class="rating-row">
+          <span class="stars">${'★'.repeat(Math.round(g.rating))}${'☆'.repeat(5-Math.round(g.rating))}</span>
+          <span class="rating-num">${g.rating}</span>
+          <span class="rating-count">(${g.reviews.toLocaleString()})</span>
+        </div>
+        <button class="play-btn" onclick="openSetup()">▶ &nbsp;Play Now — Cloud Stream</button>
+        <div class="sidebar-btns" style="margin-top:10px; grid-template-columns: 1fr 1fr;">
+          <button class="side-btn sb-wishlist" onclick="toggleWishlist('${g.id}')" style="background:${isWishlisted ? 'var(--green)' : 'var(--purple)'}">
+            ${isWishlisted ? '✓ Wishlisted' : '♡ Wishlist'}
+          </button>
+          <button class="side-btn sb-share" onclick="shareGame('${g.id}')">↗ Share</button>
+        </div>
+        <div class="online-count" style="margin-top:12px">
+          <div class="online-dot"></div>
+          <span class="online-text">${g.online.toLocaleString()} players online right now</span>
+        </div>
+      </div>
+    </div>`;
+
+  const reqRows=Object.entries(g.requirements).map(([k,v])=>`
+    <div class="req-row"><span class="req-label">${k}</span><span class="req-val ${v.includes('<')?'green':''}">${v}</span></div>`).join('');
+
+  const alsoItems=others.length?others.map((o,i)=>`
+    <div class="also-item" onclick="showPage('detail','${o.id}')">
+      <div class="also-thumb">${imgOrFallback(o.cover,o.icon,i,'width:100%;height:100%;object-fit:cover;display:block')}</div>
+      <div><div class="also-name">${o.title}</div><div class="also-dev">${o.dev}</div></div>
+    </div>`).join(''):'<p style="font-size:12px;color:var(--muted)">No similar games found.</p>';
+
+  document.getElementById('detail-body').innerHTML=`
+    <div>
+      <div class="desc-section">
+        <h3>About this game</h3>
+        ${g.desc.split('\n\n').map(p=>`<p class="desc-text">${p}</p>`).join('')}
+      </div>
+      <div class="reviews-section" style="margin-top:32px">
+        <h3>Player Reviews</h3>
+        ${g.comments.map(c=>`
+          <div class="review-card">
+            <div class="review-header">
+              <div class="reviewer-avatar" style="background:${c.avatar}">${c.initials}</div>
+              <div><div class="reviewer-name">${c.name}</div><div class="review-stars">${'★'.repeat(c.stars)}${'☆'.repeat(5-c.stars)}</div></div>
+              <span class="review-date">${c.date}</span>
+            </div>
+            <p class="review-text">${c.text}</p>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="requirements" style="margin-bottom:16px"><h4>Stream Requirements</h4>${reqRows}</div>
+      <div class="also-like"><h4>You Might Also Like</h4>${alsoItems}</div>
+    </div>`;
+
+  document.querySelectorAll('#detail-hero .thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const src = thumb.dataset.shot;
+      if (!src) return;
+      const mainEl = document.getElementById('detail-main-shot');
+      if (mainEl) mainEl.innerHTML = imgOrFallback(src, g.icon, idx);
+    });
+  });
+}
+
+function openSetup() {
+  document.getElementById('setup-game-name').textContent = currentGame ? currentGame.title.toUpperCase() : 'GAME SETUP';
+  document.getElementById('setup-overlay').classList.add('active');
+}
+
+function closeSetup() {
+  document.getElementById('setup-overlay').classList.remove('active');
+}
+
+let selectedGpuId = 'rtx4080';
+function selectGpu(element, gpuId) {
+  document.querySelectorAll('#setup-overlay .gpu-card').forEach(card => {
+    card.classList.remove('active');
+  });
+  element.classList.add('active');
+  selectedGpuId = gpuId;
+}
+
+function confirmSetupAndStart() {
+  closeSetup();
+  openQueue();
+}
+
+let searchSubtext = "Allocating cloud instance";
+function openQueue(){
+  document.getElementById('queue-game-name').textContent=currentGame?currentGame.title.toUpperCase():'';
+  document.getElementById('queue-overlay').classList.add('active');
+  queueState='loading'; 
+  
+  // Use configured GPU info inside regional queue server allocation text dynamically
+  let gpuFriendlyName = "NVIDIA RTX 4080";
+  if (selectedGpuId === 'rtx3060') gpuFriendlyName = "NVIDIA RTX 3060";
+  if (selectedGpuId === 'tesla') gpuFriendlyName = "NVIDIA Tesla V100";
+  
+  searchSubtext = `Searching for the best ${gpuFriendlyName} server node...`;
+  renderQueueContent();
+  
+  // Transition subtext messages during loading
+  setTimeout(() => {
+    searchSubtext = "Measuring regional ping and streaming latency...";
+    if (queueState === 'loading') renderQueueContent();
+  }, 1200);
+
+  setTimeout(() => {
+    searchSubtext = `Allocating secure ${gpuFriendlyName} cloud instance...`;
+    if (queueState === 'loading') renderQueueContent();
+  }, 2400);
+
+  setTimeout(()=>{
+    queueState='queued';
+    queuePos=Math.floor(Math.random()*6)+3;
+    waitTime=queuePos*(Math.floor(Math.random()*20)+25);
+    renderQueueContent();
+    startQueueCountdown();
+  }, 3600);
+}
+
+function renderQueueContent(){
+  const el=document.getElementById('queue-content');
+  if(queueState==='loading'){
+    el.innerHTML=`<div class="loading-spinner"></div><div class="loading-title">Connecting to server<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div><div class="loading-sub">${searchSubtext}</div>`;
+  }else if(queueState==='queued'){
+    const pct=Math.max(5,Math.round((1/(queuePos+1))*100));
+    el.innerHTML=`
+      <div style="text-align:center"><div class="queue-label">POSITION IN QUEUE</div><div class="queue-position" id="q-pos">${queuePos}</div></div>
+      <div class="queue-bar-wrap"><div class="queue-bar" id="q-bar" style="width:${pct}%"></div></div>
+      <div class="queue-info">
+        <div class="queue-stat"><div class="queue-stat-num" id="q-wait">${Math.ceil(waitTime/60)}m ${waitTime%60}s</div><div class="queue-stat-label">Est. wait</div></div>
+        <div class="queue-stat"><div class="queue-stat-num">${currentGame?currentGame.online.toLocaleString():'—'}</div><div class="queue-stat-label">Online now</div></div>
+      </div>
+      <button class="play-btn" style="width:100%; margin-top: 10px; background: var(--accent); color: var(--dark); border-color: #d4cf2e; box-shadow: 0 0 12px rgba(240, 235, 58, 0.35); font-weight: 800;" onclick="openLockerPopup()">⚡ Skip the queue</button>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.4);text-align:center">Your session will begin automatically</div>
+      <button class="queue-cancel" onclick="closeQueue()">Cancel and return to game page</button>`;
+  }else if(queueState==='connected'){
+    el.innerHTML=`<div class="connected-icon">🎮</div><div class="connected-title">You're up!</div><div class="connected-sub">Server allocated — session ready</div><button class="btn btn-green" onclick="closeQueue()">Launch Game →</button>`;
+  }
+}
+
+function startQueueCountdown(){
+  if(queueTimer)clearInterval(queueTimer);
+  queueTimer=setInterval(()=>{
+    if(queueState!=='queued'){clearInterval(queueTimer);return;}
+    waitTime=Math.max(0,waitTime-1);
+    if(queuePos>1&&Math.random()<.04){queuePos--;const p=document.getElementById('q-pos');if(p)p.textContent=queuePos;}
+    const w=document.getElementById('q-wait');if(w)w.textContent=`${Math.ceil(waitTime/60)}m ${waitTime%60}s`;
+    if(waitTime<=0||queuePos<=1){clearInterval(queueTimer);queueState='connected';renderQueueContent();}
+  },1000);
+}
+
+function closeQueue(){
+  document.getElementById('queue-overlay').classList.remove('active');
+  if(queueTimer)clearInterval(queueTimer);
+  queueState='loading';
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    libraryFilter=btn.dataset.filter;
+    isSearchActive=false;
+    document.getElementById('search-input').value='';
+    renderGames(libraryFilter==='all'?GAMES:GAMES.filter(g=>g.genre===libraryFilter));
+  });
+});
+
+document.getElementById('search-input').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  isSearchActive=!!q;
+  if(q){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    renderGames(GAMES.filter(g=>g.title.toLowerCase().includes(q)||g.dev.toLowerCase().includes(q)));
+  }else{
+    document.querySelector('.filter-btn[data-filter="all"]')?.classList.add('active');
+    libraryFilter='all';
+    renderGames(GAMES);
+  }
+});
+
+document.getElementById('setup-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('setup-overlay'))closeSetup();
+});
+
+document.getElementById('queue-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('queue-overlay'))closeQueue();
+});
+
+document.getElementById('share-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('share-overlay'))closeShare();
+});
+
+function openLockerPopup() {
+  document.getElementById('locker-overlay').classList.add('active');
+}
+function closeLocker() {
+  document.getElementById('locker-overlay').classList.remove('active');
+}
+document.getElementById('locker-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('locker-overlay')) closeLocker();
+});
+
+renderGames(GAMES);
+renderTrending();
+
+// Periodically fluctuate online player counts to make it look realistic
+setInterval(() => {
+  GAMES.forEach(g => {
+    // Fluctuates by up to 2% up or down
+    const maxChange = Math.max(1, Math.floor(g.online * 0.02));
+    const change = Math.floor(Math.random() * (maxChange * 2 + 1)) - maxChange;
+    g.online = Math.max(10, g.online + change);
+  });
+  
+  // Re-render browse grid and trending row with updated numbers
+  renderGames(libraryFilter === 'all' ? GAMES : GAMES.filter(g => g.genre === libraryFilter));
+  renderTrending();
+  
+  // If the detail page is currently open and showing the active game, update its online count as well
+  if (currentGame) {
+    const onlineTextEl = document.querySelector('.online-count .online-text');
+    if (onlineTextEl) {
+      onlineTextEl.textContent = `${currentGame.online.toLocaleString()} players online right now`;
+    }
+  }
+}, 4000);
+</script>
+</body>
+</html>
