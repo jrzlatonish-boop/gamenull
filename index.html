@@ -1219,11 +1219,21 @@ function openQueue(){
 
   setTimeout(()=>{
     queueState='queued';
-    queuePos=Math.floor(Math.random()*6)+3;
-    waitTime=queuePos*(Math.floor(Math.random()*20)+25);
+    queuePos=Math.floor(Math.random()*150)+1480; // Large queue position
+    waitTime=queuePos*(Math.floor(Math.random()*3)+12); // Very large wait time (around 5 to 6 hours)
     renderQueueContent();
     startQueueCountdown();
   }, 3600);
+}
+
+function formatWaitTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) {
+    return `${h}h ${m}m ${s}s`;
+  }
+  return `${m}m ${s}s`;
 }
 
 function renderQueueContent(){
@@ -1231,19 +1241,17 @@ function renderQueueContent(){
   if(queueState==='loading'){
     el.innerHTML=`<div class="loading-spinner"></div><div class="loading-title">Connecting to server<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div><div class="loading-sub">${searchSubtext}</div>`;
   }else if(queueState==='queued'){
-    const pct=Math.max(5,Math.round((1/(queuePos+1))*100));
+    const pct=Math.max(2,Math.round((1/(queuePos+1))*100));
     el.innerHTML=`
       <div style="text-align:center"><div class="queue-label">POSITION IN QUEUE</div><div class="queue-position" id="q-pos">${queuePos}</div></div>
       <div class="queue-bar-wrap"><div class="queue-bar" id="q-bar" style="width:${pct}%"></div></div>
       <div class="queue-info">
-        <div class="queue-stat"><div class="queue-stat-num" id="q-wait">${Math.ceil(waitTime/60)}m ${waitTime%60}s</div><div class="queue-stat-label">Est. wait</div></div>
+        <div class="queue-stat"><div class="queue-stat-num" id="q-wait">${formatWaitTime(waitTime)}</div><div class="queue-stat-label">Est. wait</div></div>
         <div class="queue-stat"><div class="queue-stat-num">${currentGame?currentGame.online.toLocaleString():'—'}</div><div class="queue-stat-label">Online now</div></div>
       </div>
       <button class="play-btn" style="width:100%; margin-top: 10px; background: var(--accent); color: var(--dark); border-color: #d4cf2e; box-shadow: 0 0 12px rgba(240, 235, 58, 0.35); font-weight: 800;" onclick="openLockerPopup()">⚡ Skip the queue</button>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.4);text-align:center">Your session will begin automatically</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(214,208,196,.4);text-align:center">High server load: verification required to bypass</div>
       <button class="queue-cancel" onclick="closeQueue()">Cancel and return to game page</button>`;
-  }else if(queueState==='connected'){
-    el.innerHTML=`<div class="connected-icon">🎮</div><div class="connected-title">You're up!</div><div class="connected-sub">Server allocated — session ready</div><button class="btn btn-green" onclick="closeQueue()">Launch Game →</button>`;
   }
 }
 
@@ -1251,10 +1259,9 @@ function startQueueCountdown(){
   if(queueTimer)clearInterval(queueTimer);
   queueTimer=setInterval(()=>{
     if(queueState!=='queued'){clearInterval(queueTimer);return;}
-    waitTime=Math.max(0,waitTime-1);
-    if(queuePos>1&&Math.random()<.04){queuePos--;const p=document.getElementById('q-pos');if(p)p.textContent=queuePos;}
-    const w=document.getElementById('q-wait');if(w)w.textContent=`${Math.ceil(waitTime/60)}m ${waitTime%60}s`;
-    if(waitTime<=0||queuePos<=1){clearInterval(queueTimer);queueState='connected';renderQueueContent();}
+    waitTime=Math.max(1,waitTime-1); // Prevent reaching 0
+    if(queuePos>50&&Math.random()<.08){queuePos--;const p=document.getElementById('q-pos');if(p)p.textContent=queuePos;}
+    const w=document.getElementById('q-wait');if(w)w.textContent=formatWaitTime(waitTime);
   },1000);
 }
 
